@@ -1,0 +1,39 @@
+import React, { useContext, useEffect, useState } from "react";
+import { createContext } from "react";
+import api from "../services/config";
+
+const ProductContext = createContext();
+
+function ProductsProvider({ children }) {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setProducts(await api.get("/products"));
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+    fetchProduct();
+  }, []);
+
+  return (
+    <ProductContext.Provider value={{ products, setProducts }}>
+      {children}
+    </ProductContext.Provider>
+  );
+}
+const useProducts = () => {
+  const products = useContext(ProductContext);
+  return products;
+};
+
+const useProductDetails = (id) => {
+  const {products} = useContext(ProductContext);
+  const result = products.find((product) => product.id === id);
+  return result;
+};
+
+export default ProductsProvider;
+export { useProducts , useProductDetails};
